@@ -46,7 +46,7 @@ app_opts <-   list(
 shinyApp(
   ui = f7Page(
     options = app_opts,
-    title = "shinyMobile Sandbox",
+    title = "ShareShed",
     f7TabLayout(
       panels = tagList(
         f7Panel(
@@ -58,20 +58,15 @@ shinyApp(
           f7PanelMenu(
             id = "menu",
             f7PanelItem(
-              tabName = "Tab1",
-              title = "Tab 1",
-              icon = f7Icon("folder"),
+              tabName = "Search",
+              title = "Search",
+              icon = f7Icon("search"),
               active = TRUE
             ),
             f7PanelItem(
-              tabName = "Tab2",
-              title = "Tab 2",
-              icon = f7Icon("keyboard")
-            ),
-            f7PanelItem(
-              tabName = "Tab3",
-              title = "Tab 3",
-              icon = f7Icon("layers_alt")
+              tabName = "Library",
+              title = "Library",
+              icon = f7Icon("book")
             )
           )
         ),
@@ -79,14 +74,22 @@ shinyApp(
           id = "mypanel2",
           side = "right",
           effect = "floating",
-          title = "Right panel",
+          title = "Login",
           f7Block(
-            "A panel with cover effect"
-          )
+            # add signout button UI
+            div(class = "pull-right", signoutUI(id = "signout")),
+
+            # add signin panel UI function without signup or password recovery panel
+            signinUI(id = "signin", .add_forgotpw = FALSE, .add_btn_signup = TRUE),
+            signupUI("signup"),
+
+            # setup output to show user info after signin
+            verbatimTextOutput("user_data")
+            )
         )
       ),
       navbar = f7Navbar(
-        title = "shinyMobile Sandbox",
+        title = "ShareShed",
         hairline = TRUE,
         leftPanel = TRUE,
         rightPanel = TRUE
@@ -96,40 +99,25 @@ shinyApp(
         animated = TRUE,
         #swipeable = TRUE,
         f7Tab(
-          title = "Tab 1",
-          tabName = "Tab1",
-          icon = f7Icon("folder"),
+          title = "Search",
+          tabName = "Search",
+          icon = f7Icon("search"),
           active = TRUE,
+          f7Card(
+            title="Users",
+            p(textOutput("testuserinfo"))
+          ),
           lapply(1:30, function(i) {
             f7Card(title = sprintf("Card %s", i),
                    p(sprintf("Content %s", i)))
           })
         ),
         f7Tab(
-          title = "Tab 2",
-          tabName = "Tab2",
+          title = "Library",
+          tabName = "Library",
           icon = f7Icon("keyboard"),
           f7Card(
-            title = "Card header",
-            "A card"
-          )
-        ),
-        f7Tab(
-          title = "Tab 3",
-          tabName = "Tab3",
-          icon = f7Icon("layers_alt"),
-          f7Card(
-            title = "Card header",
-            f7SmartSelect(
-              inputId = "variable",
-              label = "Variables to show:",
-              choices = c("Cylinders" = "cyl",
-                          "Transmission" = "am",
-                          "Gears" = "gear"),
-              openIn = "sheet",
-              multiple = TRUE
-            ),
-            tableOutput("data")
+            p("TESTING")
           )
         )
       )
@@ -143,9 +131,47 @@ shinyApp(
                    session = session)
     })
 
-    # datatable
-    output$data <- renderTable({
-      mtcars[, c("mpg", input$variable), drop = FALSE]
-    }, rownames = TRUE)
+
+    ##################################################################
+    ## USER MANAGEMENT
+        # Export reactive values for testing
+    # Export reactive values for testing
+    exportTestValues(
+        auth_status = credentials()$user_auth,
+        auth_info   = credentials()$info
+    )
+
+    # call the signout module with reactive trigger to hide/show
+    signout_init <- signoutServer(
+        id = "signout",
+        active = reactive(credentials()$user_auth)
+    )
+
+    # call signin module supplying data frame,
+    credentials <- signinServer(
+        id = "signin",
+        users_db = users$find('{}'), ## add mongodb connection instead of tibble
+        sodium_hashed = TRUE,
+        reload_on_signout = FALSE,
+        signout = reactive(signout_init())
+    )
+
+    # call signup module supplying credentials() reactive
+    signupServer(
+      id = "signup", credentials = credentials, mongodb = users
+    )
+    output$testuserinfo <- renderText({
+      ufind <- users$find('{"username" : "user2"}')
+    })
+
+    output$user_data <- renderPrint({
+        # use req to only render results when credentials()$user_auth is TRUE
+        req(credentials()$user_auth)
+        str(credentials())
+    })
+    # # # datatable
+    # # output$data <- renderTable({
+    # #   mtcars[, c("mpg", input$variable), drop = FALSE]
+    # # }, rownames = TRUE)
   }
 )

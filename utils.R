@@ -8,8 +8,6 @@ source("config.R")
 
 #############################################################################
 # MongoDB
-# host <- "cluster0-shard-00-00.rzpx8.mongodb.net:27017"
-# host <- "cluster0.hq089ra.mongodb.net:27017"
 host <- "ac-em1daed-shard-00-01.hq089ra.mongodb.net:27017"
 db <- "share-shed"
 # other relevant collections include: blocks and ebd_taxonomy
@@ -58,3 +56,96 @@ users <- mongo(
 #     weak_cert_validation <- T
 #   )
 # )
+
+
+##################################################################
+## User functions
+
+create_account <- function() {
+
+}
+
+edit_account <- function() {
+  
+}
+
+log_in <- function() {
+
+}
+
+log_out <- function() {
+
+}
+
+rate_user <- function() {
+  # provide rating for the lender (borrower)
+
+}
+search_owners <- function() {
+
+}
+
+##################################################################
+## functions
+
+request_to_borrow <- function() {
+  # request to borrow thing (borrower)
+
+}
+
+check_out_thing <- function() {
+  # check out thing to borrower (owner)
+
+}
+
+check_in_thing <- function() {
+  # check in thing (owner)
+
+}
+
+
+
+list_things <- function() {
+  # loaned things (owner)
+  # borrowed things (borrower)
+  # all things (owner)
+
+}
+
+search_things <- function() {
+  # search all things (borrower)
+
+}
+
+get_thing_detail <- function() {
+
+}
+
+rate_thing <- function() {
+  # provide a rating for the thing (borrower)
+
+}
+
+add_thing <- function() {
+  # add thing to library (owner)
+
+}
+
+guess_img_tags <- function() {
+  # uses google ai to generate thing descriptors
+
+
+}
+
+edit_thing <- function() {
+
+}
+
+delete_thing <- function() {
+
+}
+
+give_thing <- function() {
+  # allow owner to give to someone else
+
+}
