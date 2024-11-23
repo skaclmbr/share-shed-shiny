@@ -80,7 +80,7 @@ shinyApp(
             div(class = "pull-right", signoutUI(id = "signout")),
 
             # add signin panel UI function without signup or password recovery panel
-            signinUI(id = "signin", .add_forgotpw = FALSE, .add_btn_signup = TRUE),
+            signinUI(id = "signin", .add_forgotpw = TRUE, .add_btn_signup = TRUE),
             signupUI("signup"),
 
             # setup output to show user info after signin
@@ -161,7 +161,9 @@ shinyApp(
       id = "signup", credentials = credentials, mongodb = users
     )
     output$testuserinfo <- renderText({
+
       ufind <- users$find('{"username" : "user2"}')
+      print(ufind$name)
     })
 
     output$user_data <- renderPrint({
